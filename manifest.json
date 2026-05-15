@@ -1,0 +1,74 @@
+{
+  "name": "Habit Tracker - Daily Habit Tracker for Her",
+  "short_name": "Habit Tracker",
+  "description": "Track daily habits with cloud sync, weekly history, and trend analysis",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#080808",
+  "background_color": "#080808",
+  "categories": ["productivity", "health"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23080808' width='540' height='720'/><text x='270' y='200' font-size='48' fill='%23f2f2f2' text-anchor='middle' font-family='Bebas Neue'>HABIT</text><text x='270' y='280' font-size='48' fill='%23f2f2f2' text-anchor='middle' font-family='Bebas Neue'>TRACKER</text><circle cx='270' cy='450' r='60' fill='%23FF5252' opacity='0.2'/><text x='270' y='460' font-size='80' text-anchor='middle'>✓</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FF5252' width='192' height='192' rx='40'/><text x='96' y='120' font-size='100' fill='%23fff' text-anchor='middle' font-family='Bebas Neue' font-weight='bold'>H</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FF5252' width='192' height='192' rx='40'/><text x='96' y='120' font-size='100' fill='%23fff' text-anchor='middle' font-family='Bebas Neue' font-weight='bold'>H</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23FF5252' width='512' height='512' rx='100'/><text x='256' y='340' font-size='280' fill='%23fff' text-anchor='middle' font-family='Bebas Neue' font-weight='bold'>H</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23FF5252' width='512' height='512' rx='100'/><text x='256' y='340' font-size='280' fill='%23fff' text-anchor='middle' font-family='Bebas Neue' font-weight='bold'>H</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Habit",
+      "short_name": "Add Habit",
+      "description": "Quickly add a new habit to track",
+      "url": "/index.html?action=add",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%23FF5252' width='96' height='96' rx='20'/><text x='48' y='65' font-size='50' fill='%23fff' text-anchor='middle'>+</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "View Trends",
+      "short_name": "Trends",
+      "description": "Check your habit trends and statistics",
+      "url": "/index.html?action=trends",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%2342A5F5' width='96' height='96' rx='20'/><text x='48' y='65' font-size='50' fill='%23fff' text-anchor='middle'>📊</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

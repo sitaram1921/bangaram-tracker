@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="Track daily habits with cloud sync, weekly history, and trend analysis">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Habit Tracker">
+  <meta name="msapplication-TileColor" content="#FF5252">
+  <meta name="msapplication-config" content="browserconfig.xml">
+
+  <title>Habit Tracker</title>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FF5252' width='192' height='192' rx='40'/><text x='96' y='120' font-size='100' fill='%23fff' text-anchor='middle' font-family='Bebas Neue' font-weight='bold'>H</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23FF5252' width='180' height='180' rx='40'/><text x='90' y='110' font-size='90' fill='%23fff' text-anchor='middle' font-family='Bebas Neue' font-weight='bold'>H</text></svg>">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Onboarding Screen (shown only on first launch) -->
+<div id="onboardingScreen" class="onboarding-screen">
+  <div class="onboard-card">
+    <div class="onboard-logo">H</div>
+    <h2 class="onboard-title">Welcome!</h2>
+    <p class="onboard-sub">Let's set up your profile</p>
+
+    <div class="ob-field">
+      <div class="ob-label-row">
+        <label class="field-label">Height</label>
+        <div class="unit-pills">
+          <button class="unit-pill active" id="hUnitCm" onclick="setHeightUnit('cm')">cm</button>
+          <button class="unit-pill" id="hUnitFt" onclick="setHeightUnit('ft')">ft</button>
+        </div>
+      </div>
+      <div id="obHeightCmWrap">
+        <input class="modal-input" id="obHeightCm" type="number" placeholder="165" min="50" max="300">
+      </div>
+      <div id="obHeightFtWrap" class="ft-wrap" style="display:none">
+        <input class="modal-input" id="obHeightFt" type="number" placeholder="5 ft" min="1" max="8">
+        <input class="modal-input" id="obHeightIn" type="number" placeholder="5 in" min="0" max="11">
+      </div>
+    </div>
+
+    <div class="ob-field">
+      <div class="ob-label-row">
+        <label class="field-label">Weight</label>
+        <div class="unit-pills">
+          <button class="unit-pill active" id="wObUnitKg" onclick="setObWeightUnit('kg')">kg</button>
+          <button class="unit-pill" id="wObUnitLbs" onclick="setObWeightUnit('lbs')">lbs</button>
+        </div>
+      </div>
+      <input class="modal-input" id="obWeight" type="number" placeholder="60" min="10" max="500" step="0.1">
+    </div>
+
+    <button class="modal-btn" onclick="submitOnboarding()">Get Started →</button>
+  </div>
+</div>
+
+<!-- Greeting Banner -->
+<div class="greeting-banner">
+  <p id="greetingText">☀️ Good Morning, Bangaram!</p>
+</div>
+
+<!-- Week Navigation -->
+<div class="week-nav">
+  <button class="week-nav-btn" id="prevWeekBtn" title="Previous week">←</button>
+  <div class="week-range">
+    <p id="weekRangeText">This week</p>
+  </div>
+  <button class="week-nav-btn" id="nextWeekBtn" title="Next week">→</button>
+</div>
+
+<!-- Header -->
+<header class="app-header">
+  <p class="app-eyebrow">Daily Habits</p>
+  <div class="header-row">
+    <h1 class="today-date" id="todayDate"><span id="todayDay">—</span><span id="todayMonthDay">—</span></h1>
+    <div class="ring-wrap">
+      <div class="ring-container">
+        <svg class="ring-svg" viewBox="0 0 76 76">
+          <circle class="ring-bg" cx="38" cy="38" r="32"/>
+          <circle class="ring-arc" id="ringArc" cx="38" cy="38" r="32"/>
+        </svg>
+        <svg class="ring-text-svg" viewBox="0 0 76 76">
+          <text class="ring-pct" id="ringPct" x="38" y="39">0%</text>
+        </svg>
+      </div>
+      <span class="ring-label">Done today</span>
+    </div>
+  </div>
+</header>
+<div class="header-line"></div>
+
+<!-- BMI Section -->
+<div class="bmi-section" id="bmiSection">
+  <div class="bmi-card">
+    <div class="bmi-figure-col">
+      <svg class="bmi-figure" id="bmiFigure" viewBox="0 0 100 215" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="22" r="15" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+        <g id="bmiTorsoG">
+          <ellipse cx="50" cy="95" rx="20" ry="44" stroke="currentColor" stroke-width="4.5"/>
+        </g>
+        <path d="M30 55 Q10 85 14 115" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <path d="M70 55 Q90 85 86 115" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <path d="M40 138 Q34 165 30 200" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+        <path d="M60 138 Q66 165 70 200" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="bmi-info-col">
+      <p class="bmi-eyebrow">Your BMI</p>
+      <div class="bmi-num-row">
+        <span class="bmi-number" id="bmiNumber">—</span>
+        <span class="bmi-badge" id="bmiBadge">—</span>
+      </div>
+      <div class="bmi-scale">
+        <div class="bmi-track">
+          <div class="bmi-seg seg-under"></div>
+          <div class="bmi-seg seg-normal"></div>
+          <div class="bmi-seg seg-over"></div>
+          <div class="bmi-seg seg-obese"></div>
+          <div class="bmi-needle" id="bmiNeedle"></div>
+        </div>
+        <div class="bmi-scale-labels">
+          <span>Under</span><span>Normal</span><span>Over</span><span>Obese</span>
+        </div>
+      </div>
+      <div class="bmi-stats">
+        <div class="bmi-stat">
+          <span class="bmi-stat-val" id="statAge">—</span>
+          <span class="bmi-stat-lbl">Age</span>
+        </div>
+        <div class="bmi-stat">
+          <span class="bmi-stat-val" id="statHeight">—</span>
+          <span class="bmi-stat-lbl">Height</span>
+        </div>
+        <div class="bmi-stat bmi-stat-tap" onclick="openWeightModal()">
+          <span class="bmi-stat-val" id="statWeight">—</span>
+          <span class="bmi-stat-lbl">Weight ✎</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- iOS Add to Home Screen Prompt -->
+<div class="ios-prompt" id="iosPrompt" style="display:none">
+  <div class="ios-prompt-inner">
+    <span class="ios-prompt-icon">📲</span>
+    <div>
+      <strong>Add to Home Screen</strong>
+      <p>To enable notifications, open in Safari → tap Share → Add to Home Screen</p>
+    </div>
+    <button class="ios-prompt-close" onclick="this.closest('.ios-prompt').style.display='none'">✕</button>
+  </div>
+</div>
+
+<!-- Notification Enable Banner -->
+<div class="notif-banner" id="notifBanner" style="display:none">
+  <span class="notif-bell">🔔</span>
+  <div class="notif-text">
+    <strong>Enable Reminders</strong>
+    <span>Get loving daily reminders</span>
+  </div>
+  <button class="notif-enable-btn" onclick="requestNotifications()">Enable</button>
+</div>
+
+<!-- Congrats banner -->
+<div class="congrats-wrap" id="congratsWrap">
+  <div class="congrats-inner">
+    <span class="congrats-emoji">🎉</span>
+    <div class="congrats-text">
+      <strong>All habits done for today!</strong>
+      <small>You're absolutely crushing it. Keep the streak going!</small>
+    </div>
+  </div>
+</div>
+
+<!-- Meal Ideas Section -->
+<div class="meal-section" id="mealSection">
+  <div class="meal-section-header">
+    <p class="section-label">Meal Ideas</p>
+    <span class="meal-badge" id="mealBadge">Today's picks</span>
+  </div>
+  <div class="meal-card" id="mealCard">
+    <div class="meal-content" id="mealContent"></div>
+  </div>
+</div>
+
+<!-- Today's habits -->
+<div class="section" id="todaySection">
+  <p class="section-label">Today</p>
+  <div class="habits-grid" id="habitsGrid"></div>
+</div>
+
+<!-- Weekly history -->
+<div class="section" style="margin-top:36px" id="weekSection">
+  <p class="section-label">This week</p>
+  <div class="week-day-headers" id="weekDayHeaders"></div>
+  <div id="weeklyGrid"></div>
+</div>
+
+<!-- Trends -->
+<div class="trends-section" id="trendsSection" style="margin-top:36px">
+  <div class="trends-header">
+    <p class="section-label">Trends</p>
+    <div class="trend-filter">
+      <button class="trend-filter-btn active" data-range="4w">4 weeks</button>
+      <button class="trend-filter-btn" data-range="12w">12 weeks</button>
+      <button class="trend-filter-btn" data-range="all">All time</button>
+    </div>
+  </div>
+  <div class="chart-container">
+    <canvas id="trendsChart"></canvas>
+  </div>
+  <div class="stat-grid" id="statsGrid"></div>
+</div>
+
+<!-- Edit mode toggle -->
+<button class="edit-toggle" id="editToggle" title="Edit habits" onclick="toggleEditMode()">✎</button>
+
+<!-- Add habit modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="onOverlayClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">New Habit</h2>
+    <label class="field-label" for="habitNameInput">Habit Name</label>
+    <input class="modal-input" id="habitNameInput" placeholder="e.g. Yoga, Journal, Stretch…" maxlength="28" autocomplete="off">
+    <label class="field-label">Pick an Icon</label>
+    <div class="emoji-row" id="emojiRow"></div>
+    <label class="field-label">Pick a Color</label>
+    <div class="color-row" id="colorRow"></div>
+    <button class="modal-btn" onclick="saveHabit()">Add Habit →</button>
+  </div>
+</div>
+
+<!-- Weight Update Modal -->
+<div class="modal-overlay" id="weightOverlay" onclick="if(event.target===this)closeWeightModal()">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">Update Weight</h2>
+    <label class="field-label">Current Weight</label>
+    <div class="weight-input-row">
+      <input class="modal-input weight-num-input" id="weightEditInput" type="number" placeholder="60" min="20" max="500" step="0.1">
+      <div class="unit-pills">
+        <button class="unit-pill active" id="wUnitKg" onclick="setWeightUnit('kg')">kg</button>
+        <button class="unit-pill" id="wUnitLbs" onclick="setWeightUnit('lbs')">lbs</button>
+      </div>
+    </div>
+    <button class="modal-btn" onclick="saveWeight()">Save Weight →</button>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts -->
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
+<!-- Chart.js for trends visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Application modules (load in order) -->
+<script src="config.js"></script>
+<script src="utils.js"></script>
+<script src="db.js"></script>
+<script src="ui.js"></script>
+<script src="trends.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

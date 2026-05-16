@@ -373,4 +373,3 @@ document.addEventListener('visibilitychange', () => {
     renderMealSuggestion();
   }
 });
-                                

@@ -330,13 +330,16 @@ async function requestNotifications() {
 async function subscribeToPush() {
   try {
     const reg = await navigator.serviceWorker.ready;
-    let sub = await reg.pushManager.getSubscription();
-    if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY),
-      });
-    }
+
+    // Always unsubscribe first so a stale subscription from a previous
+    // VAPID key is never reused (FCM would reject it with 401/410).
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) await existing.unsubscribe();
+
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
     await database.ref(DB_ROOT + '/pushSubscription').set(sub.toJSON());
   } catch (e) {
     console.error('Push subscribe error:', e);
@@ -368,11 +371,4 @@ document.addEventListener('keydown', (e) => {
 
 // ── VISIBILITY CHANGE ─────────────────────────────────────────
 
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && db.isOnline) {
-    db.syncWithFirebase();
-    render();
-    renderGreeting();
-    renderMealSuggestion();
-  }
-});
+document.addEventLis

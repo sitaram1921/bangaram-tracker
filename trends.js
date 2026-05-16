@@ -71,9 +71,9 @@ function renderTrendsChart(trendData, dates) {
     const data = trendData[h.id].data;
     const cumulativeData = [];
     let sum = 0;
-    data.forEach(d => {
+    data.forEach((d, i) => {
       sum += d;
-      cumulativeData.push(Math.round((sum / cumulativeData.length) * 100) || 0);
+      cumulativeData.push(Math.round((sum / (i + 1)) * 100));
     });
     
     return {

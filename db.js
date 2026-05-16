@@ -10,6 +10,7 @@ class HabitDB {
     this.profile = null;
     this.syncing = false;
     this.isOnline = navigator.onLine;
+    this._listenerAttached = false;
     
     // Listen for online/offline events
     window.addEventListener('online', () => this.handleOnline());
@@ -81,24 +82,32 @@ class HabitDB {
       const snapshot = await dbRef.once('value');
       if (snapshot.exists()) {
         const data = snapshot.val();
-        if (data.habits) this.habits = data.habits;
+        if (data.habits) {
+          // Merge: preserve habits added offline that Firebase doesn't know about yet
+          const fbIds = new Set(data.habits.map(h => h.id));
+          const localOnly = this.habits.filter(h => !fbIds.has(h.id));
+          this.habits = [...data.habits, ...localOnly];
+        }
         if (data.completions) this.completions = data.completions;
         if (data.streaks) this.streaks = data.streaks;
         if (data.profile) this.profile = data.profile;
       }
 
-      // Real-time listener for ongoing changes from other devices
-      dbRef.on('value', snap => {
-        if (snap.exists()) {
-          const data = snap.val();
-          if (data.habits) this.habits = data.habits;
-          if (data.completions) this.completions = data.completions;
-          if (data.streaks) this.streaks = data.streaks;
-          if (data.profile) this.profile = data.profile;
-        }
-      });
+      // Real-time listener for ongoing changes from other devices — attach only once
+      if (!this._listenerAttached) {
+        this._listenerAttached = true;
+        dbRef.on('value', snap => {
+          if (snap.exists()) {
+            const data = snap.val();
+            if (data.habits) this.habits = data.habits;
+            if (data.completions) this.completions = data.completions;
+            if (data.streaks) this.streaks = data.streaks;
+            if (data.profile) this.profile = data.profile;
+          }
+        });
+      }
 
-      // Push habits/completions/streaks — profile has its own save path
+      // Push merged state back so Firebase has any offline-added habits
       await dbRef.update({
         habits: this.habits,
         completions: this.completions,

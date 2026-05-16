@@ -18,7 +18,7 @@ function b64url(str) {
 }
 
 function toB64url(bytes) {
-  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return btoa(Array.from(bytes, c => String.fromCharCode(c)).join('')).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function concat(...arrays) {

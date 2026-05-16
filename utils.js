@@ -48,7 +48,8 @@ function weekDaysFromDate(date) {
     days.push({
       str,
       label: d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2).toUpperCase(),
-      date: d
+      date: d,
+      isToday: str === todayStr()
     });
   }
   return days;
@@ -59,8 +60,7 @@ function getWeekRangeText(days) {
   const first = strToDate(days[0].str);
   const last = strToDate(days[6].str);
   
-  const isCurrentWeek = new Date().toDateString() === new Date().toDateString() && 
-                        days[6].str === todayStr();
+  const isCurrentWeek = days[0].str <= todayStr() && todayStr() <= days[6].str;
   
   if (isCurrentWeek) {
     return 'This week';

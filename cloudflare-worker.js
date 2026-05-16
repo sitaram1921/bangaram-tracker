@@ -7,7 +7,7 @@
 //   FIREBASE_URL    — https://tracker-bea1e-default-rtdb.firebaseio.com
 // ═══════════════════════════════════════════════════════════
 
-const VAPID_PUBLIC_KEY = 'BCFH2ic9hkd4odb87GbFl-d7ww0s9OERxIUSRkt7GFhCopNmDx5cdNCb4RlOkAIdOERflzolFGzn7WUSRQNCQdc';
+const VAPID_PUBLIC_KEY = 'BObYcACVvIRhikD91Vx2um0TiDQm3yQ_nogKP4XtMJ0hNfHMVkNR18hAqxLQeFYFAEhTUh8IQl6-aS3ScpEwjIc';
 // VAPID_PRIVATE_KEY is loaded from env (wrangler secret put VAPID_PRIVATE_KEY)
 
 // ── BYTE HELPERS ──────────────────────────────────────────────

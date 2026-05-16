@@ -295,7 +295,7 @@ async function saveWeight() {
 
 // ── PUSH NOTIFICATIONS ────────────────────────────────────────
 
-const VAPID_PUBLIC_KEY = 'BCFH2ic9hkd4odb87GbFl-d7ww0s9OERxIUSRkt7GFhCopNmDx5cdNCb4RlOkAIdOERflzolFGzn7WUSRQNCQdc';
+const VAPID_PUBLIC_KEY = 'BObYcACVvIRhikD91Vx2um0TiDQm3yQ_nogKP4XtMJ0hNfHMVkNR18hAqxLQeFYFAEhTUh8IQl6-aS3ScpEwjIc';
 
 function urlB64ToUint8Array(b64) {
   const pad = '='.repeat((4 - b64.length % 4) % 4);

@@ -9,10 +9,4 @@ FIREBASE_URL = "https://tracker-bea1e-default-rtdb.firebaseio.com"
 # Run: wrangler secret put CLAUDE_API_KEY
 
 [triggers]
-crons = [
-  "0 2 * * *",
-  "30 7 * * *",
-  "30 12 * * *",
-  "30 14 * * *",
-  "0 17 * * *"
-]
+crons = ["*/15 * * * *"]

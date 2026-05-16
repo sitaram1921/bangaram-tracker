@@ -5,8 +5,9 @@ compatibility_date = "2024-12-01"
 [vars]
 FIREBASE_URL = "https://tracker-bea1e-default-rtdb.firebaseio.com"
 
-# CLAUDE_API_KEY is set as a secret (never in this file):
+# Secrets (never put these in this file — set via Cloudflare Dashboard or CLI):
 # Run: wrangler secret put CLAUDE_API_KEY
+# Run: wrangler secret put VAPID_PRIVATE_KEY
 
 [triggers]
 crons = ["*/15 * * * *"]

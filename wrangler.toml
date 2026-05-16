@@ -8,15 +8,11 @@ FIREBASE_URL = "https://tracker-bea1e-default-rtdb.firebaseio.com"
 # CLAUDE_API_KEY is set as a secret (never in this file):
 # Run: wrangler secret put CLAUDE_API_KEY
 
-[[triggers.crons]]
+[triggers]
 crons = [
-  "0 2 * * *",    # 7:30 AM IST  — Morning greeting
-  "30 7 * * *",   # 1:00 PM IST  — Lunch reminder
-  "30 10 * * *",  # 4:00 PM IST  — Water reminder
-  "30 12 * * *",  # 6:00 PM IST  — Dinner ideas (2 hrs before dinner)
-  "30 14 * * *",  # 8:00 PM IST  — Evening check-in
-  "30 15 * * *",  # 9:00 PM IST  — Habit tracker reminder
-  "0 17 * * *",   # 10:30 PM IST — Sleep reminder
-  "15 17 * * *",  # 10:45 PM IST — Wind down
-  "30 17 * * *"   # 11:00 PM IST — Sleep now
+  "0 2 * * *",
+  "30 7 * * *",
+  "30 12 * * *",
+  "30 14 * * *",
+  "0 17 * * *"
 ]

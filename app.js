@@ -348,15 +348,9 @@ async function subscribeToPush() {
 }
 
 async function renewSubscription() {
-  try {
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) {
-      await database.ref(DB_ROOT + '/pushSubscription').set(sub.toJSON());
-    } else {
-      document.getElementById('notifBanner').style.display = 'flex';
-    }
-  } catch (e) { console.warn('Renew subscription error:', e); }
+  // Always force a fresh subscription so a stale one (from a previous
+  // VAPID key) is never silently re-saved to Firebase.
+  await subscribeToPush();
 }
 
 // ── KEYBOARD SHORTCUTS ────────────────────────────────────────
@@ -371,4 +365,12 @@ document.addEventListener('keydown', (e) => {
 
 // ── VISIBILITY CHANGE ─────────────────────────────────────────
 
-document.addEventLis
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && db.isOnline) {
+    db.syncWithFirebase();
+    render();
+    renderGreeting();
+    renderMealSuggestion();
+  }
+});
+                                

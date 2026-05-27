@@ -2,7 +2,7 @@
 // SERVICE WORKER - Enables offline functionality & PWA features
 // ═══════════════════════════════════════════════════════════
 
-const CACHE_NAME = 'habit-tracker-v3';
+const CACHE_NAME = 'habit-tracker-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

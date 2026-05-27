@@ -1,0 +1,37 @@
+name: Bangaram Notifications
+
+on:
+  schedule:
+    - cron: '0 2 * * *'     # 7:30 AM IST  — morning
+    - cron: '30 7 * * *'    # 1:00 PM IST  — lunch
+    - cron: '30 10 * * *'   # 4:00 PM IST  — water
+    - cron: '30 12 * * *'   # 6:00 PM IST  — dinner
+    - cron: '30 14 * * *'   # 8:00 PM IST  — evening
+    - cron: '30 15 * * *'   # 9:00 PM IST  — habits
+    - cron: '0 17 * * *'    # 10:30 PM IST — sleep
+    - cron: '15 17 * * *'   # 10:45 PM IST — winddown
+    - cron: '30 17 * * *'   # 11:00 PM IST — sleepnow
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'morning / lunch / water / dinner / evening / habits / sleep / winddown / sleepnow / surprise'
+        default: 'surprise'
+        required: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install web-push
+      - name: Send notification
+        run: node scripts/notify.js
+        env:
+          CLAUDE_API_KEY:    ${{ secrets.CLAUDE_API_KEY }}
+          VAPID_PUBLIC_KEY:  ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          FIREBASE_URL:      ${{ secrets.FIREBASE_URL }}
+          NOTIFICATION_TYPE: ${{ github.event.inputs.type || '' }}

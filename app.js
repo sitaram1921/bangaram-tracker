@@ -295,7 +295,7 @@ async function saveWeight() {
 
 // ── PUSH NOTIFICATIONS ────────────────────────────────────────
 
-const VAPID_PUBLIC_KEY = 'BObYcACVvIRhikD91Vx2um0TiDQm3yQ_nogKP4XtMJ0hNfHMVkNR18hAqxLQeFYFAEhTUh8IQl6-aS3ScpEwjIc';
+const VAPID_PUBLIC_KEY = 'BAoyL8TqiSipk9Gk3wptgzMYI6uU7TgeaD56VP8zdblkAN2NilSdi1wIahMRvKyCjBi8OzAAlaCr_vwzFVcbtQA';
 
 function urlB64ToUint8Array(b64) {
   const pad = '='.repeat((4 - b64.length % 4) % 4);
@@ -348,9 +348,32 @@ async function subscribeToPush() {
 }
 
 async function renewSubscription() {
-  // Always force a fresh subscription so a stale one (from a previous
-  // VAPID key) is never silently re-saved to Firebase.
-  await subscribeToPush();
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) {
+      // If the VAPID key changed, the old subscription won't work — force a fresh one.
+      const existingKey = existing.options?.applicationServerKey
+        ? new Uint8Array(existing.options.applicationServerKey) : null;
+      const currentKey  = urlB64ToUint8Array(VAPID_PUBLIC_KEY);
+      const keyChanged  = !existingKey ||
+        existingKey.length !== currentKey.length ||
+        existingKey.some((b, i) => b !== currentKey[i]);
+
+      if (keyChanged) {
+        await existing.unsubscribe();
+        await subscribeToPush();
+        return;
+      }
+
+      // Same key — just re-sync endpoint to Firebase (cheap, idempotent).
+      await database.ref(DB_ROOT + '/pushSubscription').set(existing.toJSON());
+      return;
+    }
+    await subscribeToPush();
+  } catch (e) {
+    console.error('Push subscription renewal error:', e);
+  }
 }
 
 // ── KEYBOARD SHORTCUTS ────────────────────────────────────────

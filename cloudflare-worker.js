@@ -240,6 +240,29 @@ const SCHEDULE = {
   '17:30': 'sleepnow',  // 11:00 PM IST — go to sleep now
 };
 
+// ── SHARED SEND LOGIC ─────────────────────────────────────────
+
+async function runNotification(type, env) {
+  const subscription = await getPushSubscription(env.FIREBASE_URL);
+  if (!subscription?.endpoint) throw new Error('No push subscription in Firebase');
+
+  const body   = await generateMessage(type, env.CLAUDE_API_KEY);
+  const status = await sendPush(subscription, TITLES[type], body, env.VAPID_PRIVATE_KEY);
+  console.log(`Push → ${status}  body: ${body}`);
+
+  if (type === 'dinner') {
+    try {
+      const meals   = await generateMealSuggestions(env.CLAUDE_API_KEY);
+      const istDate = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      await saveMealToFirebase(env.FIREBASE_URL, istDate, meals);
+    } catch (e) {
+      console.error('Meal suggestion failed:', e.message);
+    }
+  }
+
+  return { status, body };
+}
+
 // ── CRON HANDLER ──────────────────────────────────────────────
 
 export default {
@@ -248,36 +271,61 @@ export default {
     const key  = `${d.getUTCHours()}:${d.getUTCMinutes()}`;
     const type = SCHEDULE[key];
 
-    if (!type) {
-      console.log('No message scheduled for', key, '(UTC)');
-      return;
-    }
-
+    if (!type) { console.log('No message scheduled for', key, '(UTC)'); return; }
     console.log(`Running "${type}" notification at ${key} UTC`);
 
-    const subscription = await getPushSubscription(env.FIREBASE_URL);
-    if (!subscription?.endpoint) {
-      console.log('No push subscription in Firebase — skipping');
-      return;
-    }
-
-    const body = await generateMessage(type, env.CLAUDE_API_KEY);
-    console.log('Message:', body);
-
-    const status = await sendPush(subscription, TITLES[type], body, env.VAPID_PRIVATE_KEY);
-    console.log('Done. Status:', status);
-
-    // For the dinner notification, also generate meal suggestions and save to Firebase
-    // so the app can display them when she opens it
-    if (type === 'dinner') {
-      try {
-        const meals = await generateMealSuggestions(env.CLAUDE_API_KEY);
-        const istDate = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
-        await saveMealToFirebase(env.FIREBASE_URL, istDate, meals);
-        console.log('Meal suggestions saved:', meals);
-      } catch (e) {
-        console.error('Meal suggestion failed:', e.message);
-      }
+    try {
+      await runNotification(type, env);
+    } catch (e) {
+      console.error('Notification failed:', e.message);
     }
   },
+
+  // ── HTTP HANDLER (for manual testing) ────────────────────────
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // GET /check — verify secrets and subscription are in place
+    if (url.pathname === '/check') {
+      try {
+        const sub = await getPushSubscription(env.FIREBASE_URL);
+        return json({
+          hasSubscription: !!sub?.endpoint,
+          endpoint:        sub?.endpoint ? sub.endpoint.slice(0, 60) + '…' : null,
+          hasClaudeKey:    !!env.CLAUDE_API_KEY,
+          hasVapidKey:     !!env.VAPID_PRIVATE_KEY,
+          scheduleCount:   Object.keys(SCHEDULE).length,
+        });
+      } catch (e) {
+        return json({ error: e.message }, 500);
+      }
+    }
+
+    // GET /test?type=surprise — send a real push right now
+    if (url.pathname === '/test') {
+      const type = url.searchParams.get('type') || 'surprise';
+      if (!TITLES[type]) {
+        return json({ error: `Unknown type. Valid: ${Object.keys(TITLES).join(', ')}` }, 400);
+      }
+      try {
+        const result = await runNotification(type, env);
+        return json({ ok: true, ...result });
+      } catch (e) {
+        return json({ error: e.message }, 500);
+      }
+    }
+
+    const types = Object.keys(TITLES).join(', ');
+    return new Response(
+      `Bangaram Notifications Worker\n\nGET /check          — verify secrets & subscription\nGET /test?type=…    — send push now  (types: ${types})\n`,
+      { headers: { 'Content-Type': 'text/plain' } }
+    );
+  },
 };
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}

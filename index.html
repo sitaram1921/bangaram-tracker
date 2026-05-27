@@ -148,6 +148,106 @@
   </div>
 </div>
 
+<!-- Apple Health Section -->
+<div class="health-section" id="healthSection">
+  <div class="health-section-header">
+    <p class="section-label">Apple Health</p>
+    <span class="health-sync-badge" id="healthSyncBadge" style="display:none"></span>
+  </div>
+
+  <!-- Connect card (no data yet) -->
+  <div class="health-connect-card" id="healthConnectCard">
+    <span class="health-connect-icon">🍎</span>
+    <div class="health-connect-text">
+      <strong>Connect Apple Health</strong>
+      <span>Auto-track steps, sleep &amp; workouts</span>
+    </div>
+    <button class="health-connect-btn" onclick="showHealthSetup()">Setup →</button>
+  </div>
+
+  <!-- Data card (shown once data is in Firebase) -->
+  <div class="health-data-card" id="healthDataCard" style="display:none">
+    <div class="health-steps-block">
+      <div class="health-steps-top">
+        <span class="health-steps-label">👟 Steps</span>
+        <span class="health-steps-num" id="healthStepsNum">—</span>
+      </div>
+      <div class="health-bar-track">
+        <div class="health-bar-fill" id="healthBarFill"></div>
+      </div>
+      <span class="health-steps-sub" id="healthStepsSub"></span>
+    </div>
+    <div class="health-metrics-row">
+      <div class="health-metric">
+        <span class="health-metric-icon">😴</span>
+        <span class="health-metric-lbl">Sleep</span>
+        <span class="health-metric-val" id="healthSleepVal">—</span>
+      </div>
+      <div class="health-metric">
+        <span class="health-metric-icon">🏃</span>
+        <span class="health-metric-lbl">Workout</span>
+        <span class="health-metric-val" id="healthWorkoutVal">—</span>
+      </div>
+      <div class="health-metric">
+        <span class="health-metric-icon">⚖️</span>
+        <span class="health-metric-lbl">Weight</span>
+        <span class="health-metric-val" id="healthWeightVal">—</span>
+      </div>
+    </div>
+    <button class="health-setup-link" onclick="showHealthSetup()">📱 Shortcut setup</button>
+  </div>
+</div>
+
+<!-- Apple Health Shortcut Setup Modal -->
+<div class="modal-overlay" id="healthSetupOverlay" onclick="if(event.target===this)closeHealthSetup()">
+  <div class="modal-sheet health-setup-sheet">
+    <div class="modal-handle"></div>
+    <h2 class="modal-title">📱 iPhone Shortcut Setup</h2>
+    <p class="health-setup-intro">A one-time shortcut sends your health data here every morning automatically.</p>
+
+    <div class="setup-steps">
+      <div class="setup-step">
+        <span class="setup-num">1</span>
+        <div>Open the <strong>Shortcuts</strong> app → tap <strong>+</strong> → name it <em>Health Sync</em></div>
+      </div>
+      <div class="setup-step">
+        <span class="setup-num">2</span>
+        <div>
+          Add these <strong>Find Health Samples</strong> actions:<br>
+          <span class="setup-pill">Step Count · Today</span>
+          <span class="setup-pill">Workouts · Last 1 day</span>
+          <span class="setup-pill">Sleep Analysis · Last 1 day</span>
+          <span class="setup-pill">Body Mass · Most Recent</span><br>
+          Save each result to a variable of the same name.
+        </div>
+      </div>
+      <div class="setup-step">
+        <span class="setup-num">3</span>
+        <div>
+          Add a <strong>Text</strong> action with this body (use the variables from step 2):<br>
+          <pre class="setup-json" id="healthJsonTemplate"></pre>
+        </div>
+      </div>
+      <div class="setup-step">
+        <span class="setup-num">4</span>
+        <div>
+          Add <strong>Get Contents of URL</strong>:<br>
+          Method: <strong>PUT</strong> · Content-Type: <strong>application/json</strong><br>
+          URL: <span class="setup-url" id="healthFirebaseUrl"></span><br>
+          Body: the Text from step 3
+        </div>
+      </div>
+      <div class="setup-step">
+        <span class="setup-num">5</span>
+        <div>Go to <strong>Automation</strong> → New → <strong>Time of Day</strong> → 8:00 AM daily → run the <em>Health Sync</em> shortcut.</div>
+      </div>
+    </div>
+
+    <button class="modal-btn" onclick="copyFirebaseUrl()">Copy Firebase URL</button>
+    <button class="health-done-btn" onclick="closeHealthSetup()">Done</button>
+  </div>
+</div>
+
 <!-- iOS Add to Home Screen Prompt -->
 <div class="ios-prompt" id="iosPrompt" style="display:none">
   <div class="ios-prompt-inner">

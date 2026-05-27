@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   checkNotificationSetup();
+  loadHealthData();
 });
 
 // ── AGE (calculated from DOB, updates automatically on birthday) ──
@@ -376,6 +377,158 @@ async function renewSubscription() {
   }
 }
 
+// ── APPLE HEALTH ─────────────────────────────────────────────
+
+const HEALTH_FIREBASE_URL = 'https://tracker-bea1e-default-rtdb.firebaseio.com/tracker/healthData.json';
+const STEPS_GOAL = 10000;
+
+async function loadHealthData() {
+  try {
+    const snap = await database.ref(DB_ROOT + '/healthData').once('value');
+    const data = snap.val();
+
+    if (!data) {
+      // No data yet — show connect card
+      document.getElementById('healthConnectCard').style.display = 'flex';
+      document.getElementById('healthDataCard').style.display  = 'none';
+      return;
+    }
+
+    document.getElementById('healthConnectCard').style.display = 'none';
+    document.getElementById('healthDataCard').style.display  = 'block';
+    renderHealthCard(data);
+
+    const today = new Date().toLocaleDateString('en-CA');
+    if (data.date === today) applyHealthToHabits(data);
+
+  } catch (e) {
+    console.error('Health data load error:', e);
+  }
+}
+
+function renderHealthCard(data) {
+  const today = new Date().toLocaleDateString('en-CA');
+
+  // Sync badge
+  const badge = document.getElementById('healthSyncBadge');
+  badge.style.display = 'inline-block';
+  if (data.date === today) {
+    badge.textContent = '✓ synced today';
+    badge.className = 'health-sync-badge fresh';
+  } else if (data.date) {
+    const d = new Date(data.date + 'T00:00:00');
+    badge.textContent = 'synced ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    badge.className = 'health-sync-badge stale';
+  }
+
+  // Steps
+  const steps = data.steps || 0;
+  document.getElementById('healthStepsNum').textContent = steps.toLocaleString();
+  const pct = Math.min(steps / STEPS_GOAL * 100, 100);
+  document.getElementById('healthBarFill').style.width = pct + '%';
+  document.getElementById('healthStepsSub').textContent =
+    steps >= STEPS_GOAL ? '🎉 Goal reached!' : `${(STEPS_GOAL - steps).toLocaleString()} steps to goal`;
+
+  // Sleep
+  const sleep = data.sleepHours || 0;
+  document.getElementById('healthSleepVal').textContent =
+    sleep ? `${Math.floor(sleep)}h ${Math.round((sleep % 1) * 60)}m` : '—';
+
+  // Workout
+  const wType = data.workoutType || '';
+  const wMins = data.workoutMinutes || 0;
+  const wCount = data.workouts || 0;
+  document.getElementById('healthWorkoutVal').textContent =
+    wType ? (wMins ? `${wType} · ${wMins}m` : wType) :
+    wCount > 0 ? `${wCount} session${wCount > 1 ? 's' : ''}` : 'None';
+
+  // Weight
+  document.getElementById('healthWeightVal').textContent =
+    data.weightKg ? `${data.weightKg} kg` : '—';
+}
+
+function applyHealthToHabits(data) {
+  const today = todayStr();
+  let changed = false;
+
+  db.habits.forEach(h => {
+    const nameLower = h.name.toLowerCase();
+    const isExerciseHabit =
+      h.id === 'exercise' ||
+      nameLower.includes('exercise') || nameLower.includes('workout') ||
+      nameLower.includes('gym')      || nameLower.includes('run') ||
+      ['🏋️','🏃','🚴','🤸','🏊','⚽'].includes(h.emoji);
+
+    const isSleepHabit =
+      h.id === 'sleep' ||
+      nameLower.includes('sleep') || nameLower.includes('bed');
+
+    if (isExerciseHabit && !db.isDone(h.id)) {
+      const hasWorkout = (data.workouts || 0) > 0 || data.workoutType;
+      const hasSteps   = (data.steps || 0) >= 8000;
+      if (hasWorkout || hasSteps) {
+        db.completions[today] = db.completions[today] || {};
+        db.completions[today][h.id] = true;
+        db.recalcStreak(h.id);
+        changed = true;
+      }
+    }
+
+    if (isSleepHabit && !db.isDone(h.id)) {
+      if ((data.sleepHours || 0) >= 7) {
+        db.completions[today] = db.completions[today] || {};
+        db.completions[today][h.id] = true;
+        db.recalcStreak(h.id);
+        changed = true;
+      }
+    }
+  });
+
+  if (changed) {
+    db.saveLocal();
+    db.autoSync();
+    render();
+    showToast('Habits auto-checked from Apple Health 🍎');
+  }
+
+  // Weight sync — update BMI if newer
+  if (data.weightKg && db.profile && data.weightKg !== db.profile.weightKg) {
+    db.profile.weightKg = data.weightKg;
+    db.saveProfileData(db.profile);
+    renderBMI();
+  }
+}
+
+function showHealthSetup() {
+  const url = HEALTH_FIREBASE_URL;
+  document.getElementById('healthFirebaseUrl').textContent = url;
+  document.getElementById('healthJsonTemplate').textContent =
+`{
+  "date": "YYYY-MM-DD",
+  "steps": 0,
+  "sleepHours": 0,
+  "workouts": 0,
+  "workoutType": "Running",
+  "workoutMinutes": 30,
+  "weightKg": 0,
+  "lastSync": "ISO_DATE"
+}`;
+  document.getElementById('healthSetupOverlay').classList.add('open');
+}
+
+function closeHealthSetup() {
+  document.getElementById('healthSetupOverlay').classList.remove('open');
+}
+
+async function copyFirebaseUrl() {
+  try {
+    await navigator.clipboard.writeText(HEALTH_FIREBASE_URL);
+    showToast('Firebase URL copied!');
+  } catch {
+    showToast(HEALTH_FIREBASE_URL);
+  }
+}
+
 // ── KEYBOARD SHORTCUTS ────────────────────────────────────────
 
 document.addEventListener('keydown', (e) => {
@@ -394,5 +547,6 @@ document.addEventListener('visibilitychange', () => {
     render();
     renderGreeting();
     renderMealSuggestion();
+    loadHealthData();
   }
 });

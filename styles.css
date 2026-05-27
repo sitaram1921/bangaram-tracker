@@ -987,3 +987,211 @@ body.edit-mode .edit-toggle{
   .habits-grid{grid-template-columns:1fr}
   .stat-grid{grid-template-columns:1fr}
 }
+
+/* ── APPLE HEALTH ── */
+.health-section{
+  max-width:860px;
+  margin:0 auto;
+  padding:28px 24px 0;
+}
+.health-section-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+.health-section-header .section-label{margin-bottom:0}
+
+.health-sync-badge{
+  font-size:11px;
+  font-weight:600;
+  padding:3px 9px;
+  border-radius:20px;
+  letter-spacing:.02em;
+}
+.health-sync-badge.fresh{
+  background:rgba(102,187,106,.15);
+  color:#66BB6A;
+  border:1px solid rgba(102,187,106,.3);
+}
+.health-sync-badge.stale{
+  background:rgba(255,255,255,.06);
+  color:var(--muted);
+  border:1px solid var(--border);
+}
+
+/* Connect card */
+.health-connect-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px 20px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.health-connect-icon{font-size:28px;flex-shrink:0}
+.health-connect-text{flex:1}
+.health-connect-text strong{display:block;font-size:14px;font-weight:700;margin-bottom:2px}
+.health-connect-text span{font-size:12px;color:var(--muted)}
+.health-connect-btn{
+  padding:8px 14px;
+  border-radius:10px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text);
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .2s;
+  font-family:inherit;
+}
+.health-connect-btn:hover{background:#222}
+
+/* Data card */
+.health-data-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+
+.health-steps-block{
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+}
+.health-steps-top{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-bottom:10px;
+}
+.health-steps-label{font-size:13px;font-weight:600;color:var(--muted);flex:1}
+.health-steps-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:32px;
+  line-height:1;
+  letter-spacing:.01em;
+}
+.health-bar-track{
+  height:6px;
+  background:rgba(255,255,255,.07);
+  border-radius:3px;
+  overflow:hidden;
+  margin-bottom:6px;
+}
+.health-bar-fill{
+  height:100%;
+  background:linear-gradient(90deg,#42A5F5,#66BB6A);
+  border-radius:3px;
+  width:0%;
+  transition:width 1s cubic-bezier(.4,0,.2,1);
+}
+.health-steps-sub{font-size:11px;color:var(--muted)}
+
+.health-metrics-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+}
+.health-metric{
+  padding:14px 16px;
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  text-align:center;
+}
+.health-metric:last-child{border-right:none}
+.health-metric-icon{font-size:18px}
+.health-metric-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.health-metric-val{font-size:13px;font-weight:700;line-height:1.2}
+
+.health-setup-link{
+  display:block;
+  width:100%;
+  padding:10px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  background:none;
+  border:none;
+  border-top:1px solid var(--border);
+  cursor:pointer;
+  font-family:inherit;
+  transition:color .2s;
+}
+.health-setup-link:hover{color:var(--text)}
+
+/* Setup modal */
+.health-setup-sheet{max-height:88vh;overflow-y:auto}
+.health-setup-intro{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:20px;
+  line-height:1.5;
+}
+.setup-steps{display:flex;flex-direction:column;gap:16px;margin-bottom:20px}
+.setup-step{
+  display:flex;
+  gap:12px;
+  font-size:13px;
+  line-height:1.55;
+}
+.setup-num{
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  margin-top:2px;
+}
+.setup-pill{
+  display:inline-block;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:2px 7px;
+  font-size:11px;
+  font-family:monospace;
+  margin:2px 2px 0 0;
+}
+.setup-json{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:11px;
+  font-family:monospace;
+  color:rgba(255,255,255,.65);
+  white-space:pre;
+  overflow-x:auto;
+  margin-top:6px;
+}
+.setup-url{
+  font-size:11px;
+  font-family:monospace;
+  color:#42A5F5;
+  word-break:break-all;
+}
+.health-done-btn{
+  display:block;
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  background:none;
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--muted);
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  font-family:inherit;
+  transition:border-color .2s,color .2s;
+}
+.health-done-btn:hover{border-color:var(--border2);color:var(--text)}
